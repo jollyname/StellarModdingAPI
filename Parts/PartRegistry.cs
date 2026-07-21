@@ -1,5 +1,5 @@
-﻿using Ship.Interface.Settings;
-using StellarModdingAPI.Core;
+﻿using MelonLoader;
+using Ship.Interface.Settings;
 using StellarModdingAPI.StellarDriveIntegration;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,11 +19,11 @@ public static class PartRegistry
 
     public static void Build()
     {
-        StellarLogger.Msg($"Building {_definitions.Count} part(s)...");
+        MelonLogger.Msg($"Building {_definitions.Count} part(s)...");
 
         foreach (var definition in _definitions)
         {
-            StellarLogger.Msg($"Creating part: {definition.Name}");
+            MelonLogger.Msg($"Creating part: {definition.Name}");
 
             PartSettings part = PartFactory.Create(definition);
 
@@ -31,7 +31,7 @@ public static class PartRegistry
 
             IntegrationUtilities.AddPart(part);
 
-            StellarLogger.Msg($"Added part: {definition.Name} (ID: {part.id})");
+            MelonLogger.Msg($"Added part: {definition.Name} (ID: {part.id})");
         }
     }
 

@@ -2,7 +2,6 @@
 using MelonLoader;
 using StellarModdingAPI.Items;
 using StellarModdingAPI.Parts;
-using StellarModdingAPI.Core;
 using UnityEngine.InputSystem;
 using System.Linq;
 using UnityEngine;
@@ -15,8 +14,7 @@ public class Plugin : MelonPlugin
     {
         base.OnInitializeMelon();
 
-        StellarLogger.Initialize(LoggerInstance);
-        StellarLogger.Msg("StellarModdingAPI initialized!");
+        MelonLogger.Msg("StellarModdingAPI initialized!");
     }
 
     public override void OnLateInitializeMelon()
@@ -34,7 +32,7 @@ public class Plugin : MelonPlugin
 
             foreach (var item in items)
             {
-                StellarLogger.Msg($"{item.id}: {item.itemName}");
+                MelonLogger.Msg($"{item.id}: {item.itemName}");
             }
         }
     }
@@ -47,7 +45,7 @@ public class Plugin : MelonPlugin
 
     public static void RegisterPart(PartDefinition definition)
     {
-        StellarLogger.Msg($"Registering part definition: {definition.Name}");
+        MelonLogger.Msg($"Registering part definition: {definition.Name}");
 
         PartRegistry.Register(definition);
     }

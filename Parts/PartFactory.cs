@@ -1,5 +1,5 @@
-﻿using Ship.Interface.Settings;
-using StellarModdingAPI.Core;
+﻿using MelonLoader;
+using Ship.Interface.Settings;
 using UnityEngine;
 
 namespace StellarModdingAPI.Parts;
@@ -8,16 +8,16 @@ public static class PartFactory
 {
     public static PartSettings? Create(PartDefinition definition)
     {
-        StellarLogger.Msg($"Creating PartSettings for {definition.Name}");
+        MelonLogger.Msg($"Creating PartSettings for {definition.Name}");
 
         if (definition.Prefab == null)
         {
-            StellarLogger.Error($"Part '{definition.Name}' has no prefab!");
+            MelonLogger.Error($"Part '{definition.Name}' has no prefab!");
             return null;
         }
         if (definition.Thumbnail == null)
         {
-            StellarLogger.Warning($"Part '{definition.Name}' has no thumbnail! It will be replaced by a black texture");
+            MelonLogger.Warning($"Part '{definition.Name}' has no thumbnail! It will be replaced by a black texture");
         }
 
         var part = ScriptableObject.CreateInstance<PartSettings>();
@@ -28,7 +28,7 @@ public static class PartFactory
         part.size = definition.Size;
         part.id = IDAllocator.GetPartID(); // Get ID automatically
 
-        StellarLogger.Msg($"Assigned ID {part.id} to {definition.Name}");
+        MelonLogger.Msg($"Assigned ID {part.id} to {definition.Name}");
 
         part.mass = definition.Mass;
 
@@ -43,7 +43,7 @@ public static class PartFactory
 
         part.part = PrefabFactory.Create(definition);
 
-        StellarLogger.Msg($"Finished creating part: {definition.Name}");
+        MelonLogger.Msg($"Finished creating part: {definition.Name}");
 
         return part;
     }

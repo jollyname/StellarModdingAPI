@@ -1,5 +1,5 @@
 ﻿using Items.Interface.Model;
-using StellarModdingAPI.Core;
+using MelonLoader;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -18,7 +18,7 @@ public static class ItemRegistry
             _items[item.id] = item;
         }
 
-        StellarLogger.Msg($"Loaded {_items.Count} items");
+        MelonLogger.Msg($"Loaded {_items.Count} items");
     }
 
     public static ItemSettings Get(uint id)
