@@ -1,4 +1,7 @@
-﻿using System;
+﻿// Originally written by Max-H for the StellarModdingToolkit.
+// Source: https://github.com/Max-H-0/StellarModdingToolkit
+
+using System;
 using System.Collections.Generic;
 using System.Reflection;
 
