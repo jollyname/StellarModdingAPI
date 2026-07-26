@@ -9,7 +9,9 @@ namespace StellarModdingAPI.Assets
 {
     public static class AssetUtilities
     {
-        public static string[] ExtractAssetKeysFrom(Type type) 
+        public static string[] ExtractKeysFrom<T>() => ExtractKeysFrom(typeof(T));
+        
+        public static string[] ExtractKeysFrom(Type type) 
         {
             List<string> keys = [];
 
@@ -28,7 +30,7 @@ namespace StellarModdingAPI.Assets
 
                     keys.Add(value);
                 }
-                else if(isMarkedAsKey && !isConstantString)
+                else if (isMarkedAsKey && !isConstantString)
                 {
                     throw new Exception($"The field \"{field.Name}\" was wrongly marked as AssetKey, it's not a constant string.");
                 }
@@ -40,14 +42,8 @@ namespace StellarModdingAPI.Assets
 
 
     [AttributeUsage(AttributeTargets.Field, AllowMultiple = false)]
-    public class AssetKeyAttribute : Attribute
-    {
-         
-    }
+    public class AssetKeyAttribute : Attribute;
 
     [AttributeUsage(AttributeTargets.Struct | AttributeTargets.Class, AllowMultiple = false)]
-    public class AssetKeyCollectionAttribute : Attribute
-    {
-
-    }
+    public class AssetKeyCollectionAttribute : Attribute;
 }

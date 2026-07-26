@@ -4,8 +4,8 @@ namespace StellarModdingAPI.Items;
 
 public static class ItemCost
 {
-    public static ItemInstance Of(uint id, int amount)
+    public static ItemInstance Of(ItemID item, int amount)
     {
-        return new ItemInstance(ItemRegistry.Get(id), amount);
+        return new ItemInstance(ItemRegistry.Get(item), amount);
     }
 }

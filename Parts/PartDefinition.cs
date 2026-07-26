@@ -5,18 +5,21 @@ using UnityEngine;
 
 namespace StellarModdingAPI.Parts;
 
-public class PartDefinition
-{
-    public string Name { get; set; } = "";
-    public string Description { get; set; } = "";
+/// <param name="PhysicalSize"> Used for positioning and collision </param>
+/// <param name="LogicalSize"> Used for things like snapping </param>
+public record class PartDefinition
+(
+    string Name,
+    string Description,
 
-    public GameObject Prefab { get; set; } = null!;
-    public Texture2D Thumbnail { get; set; } = null!;
+    GameObject Prefab,
+    Texture2D? Thumbnail,
 
-    public Vector3 Size { get; set; }
-    public float Mass { get; set; }
+    Vector3 PhysicalSize,
+    float Mass,
 
-    public SnappingStyle Snapping { get; set; } = SnappingStyle.PreciseOnAny;
+    Vector3 LogicalSize,
+    SnappingStyle Snapping = SnappingStyle.PreciseOnAny,
 
-    public List<ItemInstance> BuildingCost { get; set; } = [];
-}
+    params List<ItemInstance> BuildingCost
+);
