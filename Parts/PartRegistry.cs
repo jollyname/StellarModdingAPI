@@ -1,6 +1,6 @@
 ﻿using MelonLoader;
 using Ship.Interface.Settings;
-using StellarModdingAPI.StellarDriveIntegration;
+using StellarModdingAPI.Integration;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -17,19 +17,20 @@ public static class PartRegistry
         _definitions.Add(definition);
     }
 
-    public static void Build()
+    public static void Rebuild()
     {
         MelonLogger.Msg($"Building {_definitions.Count} part(s)...");
 
+        Clean();
+        IDAllocator.Reset();
+
         foreach (var definition in _definitions)
         {
-            MelonLogger.Msg($"Creating part: {definition.Name}");
-
             PartSettings part = PartFactory.Create(definition);
 
             _parts.Add(part);
 
-            IntegrationUtilities.AddPart(part);
+            PartIntegration.AddPart(part);
 
             MelonLogger.Msg($"Added part: {definition.Name} (ID: {part.id})");
         }
@@ -43,7 +44,7 @@ public static class PartRegistry
             .Where(p => ids.Contains(p.id))
             .ToArray())
         {
-            Object.Destroy(item);
+            Object.DestroyImmediate(item);
         }
     }
 }

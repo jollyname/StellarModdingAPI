@@ -1,4 +1,6 @@
-﻿using MelonLoader;
+﻿using System;
+using MelonLoader;
+using Ship.Interface.Model.Parts.StateTypes;
 using Ship.Interface.Settings;
 using UnityEngine;
 
@@ -6,43 +8,37 @@ namespace StellarModdingAPI.Parts;
 
 public static class PartFactory
 {
-    public static PartSettings? Create(PartDefinition definition)
+    /// <exception cref="ArgumentException">If PartDefinition.Prefab is null</exception>
+    public static PartSettings Create(PartDefinition definition)
     {
         MelonLogger.Msg($"Creating PartSettings for {definition.Name}");
 
-        if (definition.Prefab == null)
-        {
-            MelonLogger.Error($"Part '{definition.Name}' has no prefab!");
-            return null;
-        }
-        if (definition.Thumbnail == null)
-        {
-            MelonLogger.Warning($"Part '{definition.Name}' has no thumbnail! It will be replaced by a black texture");
-        }
+        if (definition.Prefab == null) throw new ArgumentException($"Part '{definition.Name}' has no prefab!");
+
 
         var part = ScriptableObject.CreateInstance<PartSettings>();
 
         part.fullLabel = definition.Name;
         part.name = definition.Name;
         part.description = definition.Description;
-        part.size = definition.Size;
+        part.size = definition.LogicalSize;
         part.id = IDAllocator.GetPartID(); // Get ID automatically
-
-        MelonLogger.Msg($"Assigned ID {part.id} to {definition.Name}");
-
         part.mass = definition.Mass;
-
-        part.thumbnailTex = definition.Thumbnail != null ? definition.Thumbnail : Texture2D.blackTexture;
-
         part.snappingStyle = definition.Snapping;
-
-        // TODO: Stop hardcoding this
-        part.internalStateType = Ship.Interface.Model.Parts.StateTypes.PartInternalStateType.None;
-
+        part.internalStateType = PartInternalStateType.None;  // TODO: Stop hardcoding this
         part.buildingCost = definition.BuildingCost;
 
-        part.part = PrefabFactory.Create(definition);
+        if (definition.Thumbnail != null)
+        {
+            part.thumbnailTex = definition.Thumbnail;
+        }
+        else
+        {
+            MelonLogger.Warning($"Part '{definition.Name}' has no thumbnail! It will be replaced by a black texture");
+            part.thumbnailTex = Texture2D.blackTexture;
+        }
 
+        part.part = PrefabFactory.Create(definition);
         MelonLogger.Msg($"Finished creating part: {definition.Name}");
 
         return part;

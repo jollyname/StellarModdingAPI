@@ -1,9 +1,9 @@
 ﻿using System;
 using UnityEngine;
 
-namespace StellarModdingAPI.StellarDriveIntegration;
+namespace StellarModdingAPI.Integration;
 
-public static class MaterialUtilities
+public static class MaterialIntegration
 {
     private static readonly Shader _gameShader = 
         Shader.Find("Shader Graphs/PlanetObjectDefaultLighting") 

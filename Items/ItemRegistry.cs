@@ -7,9 +7,9 @@ namespace StellarModdingAPI.Items;
 
 public static class ItemRegistry
 {
-    private static readonly Dictionary<uint, ItemSettings> _items = new();
+    private static readonly Dictionary<ItemID, ItemSettings> _items = [];
 
-    public static void Initialize()
+    public static void Refresh()
     {
         _items.Clear();
 
@@ -21,7 +21,7 @@ public static class ItemRegistry
         MelonLogger.Msg($"Loaded {_items.Count} items");
     }
 
-    public static ItemSettings Get(uint id)
+    public static ItemSettings Get(ItemID id)
     {
         if (!_items.TryGetValue(id, out var item))
         {
@@ -31,7 +31,7 @@ public static class ItemRegistry
         return item;
     }
 
-    public static IReadOnlyDictionary<uint, ItemSettings> GetAll()
+    public static IReadOnlyDictionary<ItemID, ItemSettings> GetAll()
     {
         return _items;
     }

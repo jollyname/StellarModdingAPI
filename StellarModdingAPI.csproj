@@ -6,18 +6,29 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+
   <ItemGroup>
-    <Reference Include="ReferencedAssemblies\MelonLoader.dll" />
+
+    <!--  Unity  -->
     <Reference Include="ReferencedAssemblies\UnityEngine.CoreModule.dll" />
     <Reference Include="ReferencedAssemblies\UnityEngine.AssetBundleModule.dll" />
+	<Reference Include="ReferencedAssemblies\Unity.InputSystem.dll" />
+
+    <!--  StellarDrive  -->
     <Reference Include="ReferencedAssemblies\Core.dll" />
     <Reference Include="ReferencedAssemblies\UI.dll" />
-	<Reference Include="ReferencedAssemblies\Unity.InputSystem.dll" />
 	<Reference Include="ReferencedAssemblies\UI.Interface.dll" />
     <Reference Include="ReferencedAssemblies\Ship.dll" />
     <Reference Include="ReferencedAssemblies\Ship.Interface.dll" />
     <Reference Include="ReferencedAssemblies\Items.Interface.dll" />
     <Reference Include="ReferencedAssemblies\Managers.Interface.dll" />
+
+    <!--  MelonLoader  -->
+    <Reference Include="ReferencedAssemblies\MelonLoader.dll" />
+
+    <!--  Polyfills  -->
+    <PackageReference Include="PolySharp" Version="1.15.0" PrivateAssets="all" />
+
   </ItemGroup>
   
 </Project>

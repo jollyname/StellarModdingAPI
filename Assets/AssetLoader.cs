@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -20,151 +21,136 @@ namespace StellarModdingAPI.Assets;
 public class AssetLoader
 {
     private readonly Assembly _assembly;
+    private readonly string[] _providedKeys;
     private readonly MelonLogger.Instance? _logger;
-    private readonly Dictionary<string, Object?> _assets;
-    
-    
-    /// <summary> Creates new AssetLoader that wont utilise logging </summary>
-    /// <param name="assembly"> The Assembly the Assets' AssetBundles(as "EmbeddedResource"s) are located in </param>
-    /// <param name="assetNames"> The Names of the Assets that should be loaded </param>
-    /// <remarks> Usage before OnLateInitializeMelon may cause Native Error! </remarks>
-    public AssetLoader(Assembly assembly, string[] assetNames)
-    {
-        _assembly = assembly;
-        _assets = [];
 
-        Initialize(assetNames);
-    }
+    private readonly Dictionary<string, Object?> _loadedAssets = [];
     
-    /// <summary> Creates new AssetLoader and logs the loading results </summary>
+    
+    /// <summary> Creates new AssetLoader </summary>
     /// <param name="assembly"> The Assembly the Assets' AssetBundles(as "EmbeddedResource"s) are located in </param>
-    /// <param name="logger"> The Logger that should be used </param>;
-    /// <param name="assetNames"> The Names of the Assets that should be loaded </param>
+    /// <param name="assetKeys"> The Names of the Assets that should be loaded </param>
+    /// <param name="logger"> The Logger that should be used (if any) </param>;
     /// <remarks> Usage before OnLateInitializeMelon may cause Native Error! </remarks>
-    public AssetLoader(Assembly assembly, MelonLogger.Instance logger, string[] assetNames)
+    public AssetLoader(Assembly assembly, string[] assetKeys, MelonLogger.Instance? logger = null)
     {
         _assembly = assembly;
+        _providedKeys = assetKeys;
         _logger = logger;
-        _assets = [];
 
-        Initialize(assetNames);
+        LoadAssets();
     }
 
 
-    /// <summary> Gets a previously loaded Asset by Name </summary>
-    /// <param name="name"> The Name of the Asset </param>
-    public Object? GetAsset(string name)
+    /// <summary> Gets a previously loaded Asset by Name (throws on failure) </summary>
+    /// <param name="key"> The Name of the Asset </param>
+    public Object GetAsset(string key)
     {
-        if (!_assets.TryGetValue(name, out var asset))
-        {
-            _logger?.Error($"Requested unknown asset: {name}");
-            return null;
-        }
-
-        return asset;
-    }
-
-    /// <summary> Gets a previously loaded Asset by Name and casts it </summary>
-    /// <param name="name"> The Name of the Asset </param>
-    public T? GetAsset<T>(string name) where T : Object
-    {
-        return (T?)GetAsset(name);
-    }
-    
-
-    private void Initialize(string[] assetNames)
-    {
-        _logger?.Msg($"Initializing AssetLoader with {assetNames.Length} asset(s)");
-
-        foreach (var assetName in assetNames.Distinct())
-        {
-            _assets.Add(assetName, null);
-        }
-
-        try
-        {
-            LoadAndSetAssets();
-        }
-        catch (Exception exception)
-        {
-            _logger?.Error("Failed loading assets: " + exception);
-        }
-
-        foreach (var assetKey in _assets.Keys)
-        {
-            if (_assets[assetKey] == null)
-            {
-                _logger?.Error($"Failed to load asset: {assetKey}");
-            }
-        }
-
-        int loaded = _assets.Values.Count(asset => asset != null);
-
-        _logger?.Msg($"Asset loading complete: {loaded}/{_assets.Count} assets loaded");
-    }
-    
-    /*
-    private void LoadAndSetAssets()
-    {
-        var resourceNames = _assembly.GetManifestResourceNames();
-
+        if (TryGetAsset(key, out var asset)) return asset; 
         
-        foreach (var name in resourceNames)
+        if (_providedKeys.Contains(key))
         {
-            Stream stream = _assembly.GetManifestResourceStream(name);
-            AssetBundle assetBundle = AssetBundle.LoadFromStream(stream);
-            Object[] assets = assetBundle.LoadAllAssets();
-            
-            SetMatchingAssets(assets);
+            throw new NullReferenceException("Attempted to lookup valid asset key that failed to load on initialization");
+        }
+        else
+        {
+            throw new KeyNotFoundException("Attempted to lookup invalid asset key that wasn't provided on initialization");
         }
     }
-    */
 
-    private void LoadAndSetAssets()
+    /// <summary> Gets a previously loaded Asset by Name and casts it (throws on failure) </summary>
+    /// <param name="key"> The Name of the Asset </param>
+    public T GetAsset<T>(string key)
+        where T : Object
     {
+        var @object = GetAsset(key);
+
+        if (@object is T asset)
+        {
+            return asset;
+        }
+        else
+        {
+            throw new InvalidCastException($"Couldn't cast loaded asset '{key}' of type '{@object.GetType()}' to type '{typeof(T)}'");
+        }
+    }
+
+    /// <summary> Safely gets a previously loaded Asset by Name</summary>
+    /// <param name="key"> The Name of the Asset </param>
+    public bool TryGetAsset(string key, [NotNullWhen(true)] out Object? asset)
+    {
+        return _loadedAssets.TryGetValue(key, out asset);
+    }    
+    
+    /// <summary> Safely gets a previously loaded Asset by Name and casts it </summary>
+    /// <param name="key"> The Name of the Asset </param>
+    public bool TryGetAsset<T>(string key, [NotNullWhen(true)] out T? asset)
+        where T : Object
+    {
+        TryGetAsset(key, out var @object);
+
+        asset = @object as T;
+        return asset != null;
+    }
+    
+
+    private void LoadAssets()
+    {
+        _logger?.Msg($"Loading assets...");
         var resourceNames = _assembly.GetManifestResourceNames();
-        _logger?.Msg("Loading resources...");
 
         foreach (var name in resourceNames)
         {
             _logger?.Msg($"Processing resource: {name}");
 
-            using Stream stream = _assembly.GetManifestResourceStream(name);
-            if (stream == null)
-            {
-                _logger?.Error($"Resource stream is null for: {name}");
-                continue;
-            }
-
             try
             {
-                AssetBundle assetBundle = AssetBundle.LoadFromStream(stream);
-                if (assetBundle == null)
-                {
-                    _logger?.Error($"AssetBundle could not be loaded from: {name}");
-                    continue;
-                }
+                using Stream stream = _assembly.GetManifestResourceStream(name);
+                var assetBundle = AssetBundle.LoadFromStream(stream);
 
-                Object[] assets = assetBundle.LoadAllAssets();
-                SetMatchingAssets(assets);
+                if (assetBundle != null)
+                {
+                    Object[] assets = assetBundle.LoadAllAssets();
+                    SetMatchingAssets(assets);
+                }
+                else
+                {
+                    _logger?.Msg($"Resource '{name}' is not an AssetBundle, proceeding...");
+                }
             }
             catch (Exception e)
             {
-                _logger?.Error($"Error loading AssetBundle from resource: {name}. Exception: {e}");
+                _logger?.Warning($"Failed to load resource '{name}' as AssetBundle: {e}");
             }
         }
+
+        var unloadedKeys = _providedKeys.Where(k => !_loadedAssets.ContainsKey(k));
+        var totalCount = _providedKeys.Length;
+        var loadedCount = totalCount - unloadedKeys.Count();
+        _logger?.Msg($"Asset loading complete: {loadedCount}/{totalCount} asset(s) loaded");
+
+        if (unloadedKeys.Any()) _logger?.Warning($"Couldn't find/load: {string.Join(", ", unloadedKeys)}");
     }
 
-    private void SetMatchingAssets(Object[] assets)
+    private void SetMatchingAssets(Object[] loadedAssets)
     {
-        foreach (var asset in assets)
+        foreach (var asset in loadedAssets)
         {
             var name = asset.name;
             
-            if(!_assets.Keys.Contains(name)) continue;
-            if(_assets[name] != null) continue;
+            if(!_providedKeys.Contains(name))
+            {
+                _logger?.Warning($"The following asset was found but matches no key: {name}");
+                continue;
+            }
+
+            if(_loadedAssets.TryGetValue(name, out var value) && value != null)
+            {
+                _logger?.Error($"The following asset was found but the key already has an entry: {name}");
+                continue;
+            }
             
-            _assets[name] = asset;
+            _loadedAssets[name] = asset;
             _logger?.Msg($"Successfully loaded: {name} ({asset.GetType()})");
         }
     }
