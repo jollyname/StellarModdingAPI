@@ -22,8 +22,15 @@
     <Reference Include="ReferencedAssemblies\Ship.Interface.dll" />
     <Reference Include="ReferencedAssemblies\Items.Interface.dll" />
     <Reference Include="ReferencedAssemblies\Managers.Interface.dll" />
+	<Reference Include="ReferencedAssemblies\Planet.dll" />
+	<Reference Include="ReferencedAssemblies\Planet.Interface.dll" />
+	<Reference Include="ReferencedAssemblies\WorldTracking.dll" />
+	<Reference Include="ReferencedAssemblies\WorldTracking.Interface.dll" />
 
-    <!--  MelonLoader  -->
+	<!--  FishNet  -->
+	<Reference Include="ReferencedAssemblies\FishNet.Runtime.dll" />
+
+	<!--  MelonLoader  -->
     <Reference Include="ReferencedAssemblies\MelonLoader.dll" />
 
     <!--  Polyfills  -->
