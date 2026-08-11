@@ -16,23 +16,43 @@ namespace StellarModdingAPI.Assets;
 
 /// <summary>
 /// Loads Assets in an Assembly for later use
-/// (Assumes every EmbeddedResource is an AssetBundle)
 /// </summary>
-public class AssetLoader
+public class AssetCollection
 {
     private readonly Assembly _assembly;
     private readonly string[] _providedKeys;
     private readonly MelonLogger.Instance? _logger;
 
     private readonly Dictionary<string, Object?> _loadedAssets = [];
-    
-    
-    /// <summary> Creates new AssetLoader </summary>
+
+
+    /// <summary> Creates an AssetCollection that contains the assets from the KeyCollection (any type with fields marked as AssetKey via the Attribute) </summary>
+    /// <remarks> 
+    /// Usage before OnLateInitializeMelon may cause Native Error! <br/>
+    /// Assumes the keys are located in the same Assmebly as the AssetBundles' EmbeddedResources 
+    /// </remarks>
+    public static AssetCollection LoadFrom<TKeyCollection>(MelonLogger.Instance? logger = null)
+    {
+        return LoadFrom
+        (
+            assembly: typeof(TKeyCollection).Assembly,
+            assetKeys: AssetUtilities.ExtractKeysFrom<TKeyCollection>(),
+            logger: logger
+        );
+    }
+
+    /// <summary> Creates an AssetCollection and loads the asset with the provided names/keys from the provided assembly </summary>
     /// <param name="assembly"> The Assembly the Assets' AssetBundles(as "EmbeddedResource"s) are located in </param>
     /// <param name="assetKeys"> The Names of the Assets that should be loaded </param>
     /// <param name="logger"> The Logger that should be used (if any) </param>;
     /// <remarks> Usage before OnLateInitializeMelon may cause Native Error! </remarks>
-    public AssetLoader(Assembly assembly, string[] assetKeys, MelonLogger.Instance? logger = null)
+    public static AssetCollection LoadFrom(Assembly assembly, string[] assetKeys, MelonLogger.Instance? logger = null)
+    {
+        return new AssetCollection(assembly, assetKeys, logger);
+    }
+    
+
+    private AssetCollection(Assembly assembly, string[] assetKeys, MelonLogger.Instance? logger = null)
     {
         _assembly = assembly;
         _providedKeys = assetKeys;
