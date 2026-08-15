@@ -5,45 +5,39 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 
-namespace StellarModdingAPI.Assets
+namespace StellarModdingAPI.Assets;
+
+public static class AssetUtilities
 {
-    public static class AssetUtilities
+    public static string[] ExtractKeysFrom<T>() => ExtractKeysFrom(typeof(T));
+
+    public static string[] ExtractKeysFrom(Type type)
     {
-        public static string[] ExtractKeysFrom<T>() => ExtractKeysFrom(typeof(T));
-        
-        public static string[] ExtractKeysFrom(Type type) 
+        List<string> keys = [];
+
+        foreach (var field in type.GetFields())
         {
-            List<string> keys = [];
+            bool fieldIsExplicitlyKey = field.IsDefined(typeof(AssetKeyAttribute));
 
-            bool keysOnly = type.IsDefined(typeof(AssetKeyCollectionAttribute));
+            bool isMarkedAsKey = fieldIsExplicitlyKey;
+            bool isConstantString = field.IsLiteral && !field.IsInitOnly && field.FieldType == typeof(string);
 
-            foreach (var field in type.GetFields())
+            if (isMarkedAsKey && isConstantString)
             {
-                bool fieldIsExplicitlyKey = field.IsDefined(typeof(AssetKeyAttribute));
+                var value = (string)field.GetRawConstantValue();
 
-                bool isMarkedAsKey = fieldIsExplicitlyKey || keysOnly;
-                bool isConstantString = field.IsLiteral && !field.IsInitOnly && field.FieldType == typeof(string);
-                
-                if (isMarkedAsKey && isConstantString)
-                {
-                    var value = (string)field.GetRawConstantValue();
-
-                    keys.Add(value);
-                }
-                else if (isMarkedAsKey && !isConstantString)
-                {
-                    throw new Exception($"The field \"{field.Name}\" was wrongly marked as AssetKey, it's not a constant string.");
-                }
+                keys.Add(value);
             }
-
-            return keys.ToArray();
+            else if (isMarkedAsKey && !isConstantString)
+            {
+                throw new Exception($"The field \"{field.Name}\" was wrongly marked as AssetKey, it's not a constant string.");
+            }
         }
+
+        return keys.ToArray();
     }
-
-
-    [AttributeUsage(AttributeTargets.Field, AllowMultiple = false)]
-    public class AssetKeyAttribute : Attribute;
-
-    [AttributeUsage(AttributeTargets.Struct | AttributeTargets.Class, AllowMultiple = false)]
-    public class AssetKeyCollectionAttribute : Attribute;
 }
+
+
+[AttributeUsage(AttributeTargets.Field, AllowMultiple = false)]
+public class AssetKeyAttribute : Attribute;
