@@ -13,7 +13,7 @@ namespace StellarModdingAPI.Planets
     /// </summary>
     internal static class PlanetTrackerRegistry
     {
-        public static void Register(global::Planet.Planet planet, bool isServer, MelonLogger.Instance logger)
+        public static void Register(Planet.Planet planet, bool isServer, MelonLogger.Instance logger)
         {
             // Object.Instantiate() does not register a NetworkObject with FishNet by itself
             var nob = planet.GetComponent<NetworkObject>();
@@ -28,8 +28,8 @@ namespace StellarModdingAPI.Planets
 
             // Find the live tracker instance, client or server, matching what LoadPlanets() populated at scene start
             object tracker = isServer
-                ? (object)ServiceLocator.GetService<IPlanetsServerProvider>()
-                : (object)ServiceLocator.GetService<IPlanetsClientProvider>();
+                ? ServiceLocator.GetService<IPlanetsServerProvider>()
+                : ServiceLocator.GetService<IPlanetsClientProvider>();
             if (tracker == null)
             {
                 logger.Error($"[PlanetFactory] Could not find planet tracker instance (isServer={isServer}).");

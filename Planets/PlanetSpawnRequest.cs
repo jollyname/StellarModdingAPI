@@ -1,30 +1,31 @@
 ﻿using System;
+using Planet.Terrain.Evaluation.Step;
+using Planet.Terrain.Material;
 using UnityEngine;
 
-namespace StellarModdingAPI.Planets
-{
-    public sealed class PlanetSpawnRequest
-    {
-        public string SourcePlanetName { get; set; }
+namespace StellarModdingAPI.Planets;
 
-        /// <summary>Must not collide with any existing planet's id.</summary>
-        public ulong Id { get; set; }
+public sealed record class PlanetSpawnRequest
+(
+    string SourcePlanetName,
 
-        public string Name { get; set; }
+    /// <summary>Must not collide with any existing planet's id.</summary>
+    ulong Id,
 
-        public float Radius { get; set; }
+    string Name,
 
-        /// <summary>Offset from the source's positionRelativeToParent. Zero spawns the clone on top of it.</summary>
-        public Vector3 PositionOffset { get; set; }
+    float Radius,
 
-        public Action<Planet.Terrain.Evaluation.Step.TerrainConfig> TerrainOverride { get; set; }
+    /// <summary>Offset from the source's positionRelativeToParent. Zero spawns the clone on top of it.</summary>
+    Vector3 PositionOffset,
 
-        public Planet.Terrain.Material.TerrainMaterialConfig[] Materials { get; set; }
+    Action<TerrainConfig> TerrainOverride,
 
-        public bool RemoveRings { get; set; } = true;
+    TerrainMaterialConfig[]? Materials,
 
-        public bool RegisterAsServer { get; set; } = true;
+    bool RemoveRings = true,
 
-        public bool RegisterAsClient { get; set; } = true;
-    }
-}
+    bool RegisterAsServer = true,
+
+    bool RegisterAsClient = true
+);
