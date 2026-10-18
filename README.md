@@ -1,5 +1,8 @@
 # StellarModdingAPI
 
+> [!IMPORTANT]  
+> StellarModdingAPI only works for the Itch.io prototype version of the game.
+
 A modding API for the game StellarDrive.
 
 StellarModdingAPI is a plugin built with [MelonLoader](https://melonwiki.xyz/)
